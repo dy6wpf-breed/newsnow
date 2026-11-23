@@ -1,4 +1,5 @@
 import type { SourceID, SourceResponse } from "@shared/types"
+import { MaxStale } from "@shared/consts"
 import { getCacheTable } from "#/database/cache"
 
 export default defineEventHandler(async (event) => {
@@ -9,7 +10,7 @@ export default defineEventHandler(async (event) => {
     if (ids?.length && cacheTable) {
       const caches = await cacheTable.getEntire(ids)
       const now = Date.now()
-      return caches.map(cache => ({
+      return caches.filter(cache => now - cache.updated < MaxStale).map(cache => ({
         status: "cache",
         id: cache.id,
         items: cache.items,

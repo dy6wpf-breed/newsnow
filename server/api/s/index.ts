@@ -1,4 +1,5 @@
 import type { SourceID, SourceResponse } from "@shared/types"
+import { MaxStale } from "@shared/consts"
 import { getters } from "#/getters"
 import { getCacheTable } from "#/database/cache"
 import type { CacheInfo } from "#/types"
@@ -78,7 +79,7 @@ export default defineEventHandler(async (event): Promise<SourceResponse> => {
         info,
       }
     } catch (e) {
-      if (cache!) {
+      if (cache! && Date.now() - cache.updated < MaxStale) {
         return {
           status: "cache",
           id,
